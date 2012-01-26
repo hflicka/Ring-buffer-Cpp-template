@@ -6,7 +6,7 @@ A simple ring buffer implementation as C++ template
 
 This source code is licensed under the 
 [MIT license](http://www.opensource.org/licenses/MIT). 
-That means you can do almost anything with it.
+That license permits commercial use without publishing your source code.
 
 Also, forks and pull requests are welcome.
 
