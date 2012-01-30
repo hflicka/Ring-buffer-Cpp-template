@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <memory.h>
 
+
 template<typename T> class ringbuffer {
 public:
     /**
@@ -38,6 +39,7 @@ public:
             : size(size)
             , begin(0)
             , end(0)
+            , wrap(false)
     {
         buffer = new T[size];
     }
@@ -63,7 +65,11 @@ public:
 
     size_t write(const T * data, size_t n)
     {
-        n = std::min(n, getFree() - 1); // prevent that begin and end are the same
+        n = std::min(n, getFree());
+
+        if (n == 0) {
+            return n;
+        }
 
         const size_t first_chunk = std::min(n, size - end);
         memcpy(buffer + end, data, first_chunk * sizeof(T));
@@ -74,12 +80,25 @@ public:
             memcpy(buffer + end, data + first_chunk, second_chunk * sizeof(T));
             end = (end + second_chunk) % size;
         }
+
+        if (begin == end) {
+            wrap = true;
+        }
+
         return n;
     }
 
-    size_t read(const T * dest, size_t n)
+    size_t read(T * dest, size_t n)
     {
         n = std::min(n, getOccupied());
+
+        if (n == 0) {
+            return n;
+        }
+
+        if (wrap) {
+            wrap = false;
+        }
 
         const size_t first_chunk = std::min(n, size - begin);
         memcpy(dest, buffer + begin, first_chunk * sizeof(T));
@@ -94,7 +113,9 @@ public:
     }
 
     size_t getOccupied() {
-        if (end >= begin) {
+        if (end == begin) {
+            return wrap ? size : 0;
+        } else if (end > begin) {
             return end - begin;
         } else {
             return size + end - begin;
@@ -109,6 +130,7 @@ private:
     size_t size;
     size_t begin;
     size_t end;
+    bool wrap;
 };
 
 #endif // RINGBUFFER_H
