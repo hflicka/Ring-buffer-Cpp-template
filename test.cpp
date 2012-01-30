@@ -4,7 +4,7 @@
 
 #include "ringbuffer.h"
 
-#define DATALEN 50
+#define DATALEN 1000
 #define SIZE 10
 
 #define ASSERT(cond) do { if (!(cond)) {printf("assertion \"%s\" failed\n", #cond); exit(1); }} while (0)
